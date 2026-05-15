@@ -1,0 +1,27 @@
+# Binaries
+secure-auth
+*.exe
+
+# Data directory (contains user data — never commit)
+data/
+
+# Environment files
+.env
+.env.*
+
+# Build artifacts
+dist/
+build/
+
+# Go test cache
+*.test
+*.out
+coverage.out
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
