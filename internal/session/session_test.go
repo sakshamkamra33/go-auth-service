@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sakshamkamra33/secure-auth/internal/session"
+	"github.com/sakshamkamra33/go-auth-service/internal/session"
 )
 
 func newManager() *session.Manager {

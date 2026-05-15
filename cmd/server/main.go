@@ -10,14 +10,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/sakshamkamra33/secure-auth/api"
-	"github.com/sakshamkamra33/secure-auth/internal/auth"
-	"github.com/sakshamkamra33/secure-auth/internal/config"
-	"github.com/sakshamkamra33/secure-auth/internal/email"
-	"github.com/sakshamkamra33/secure-auth/internal/logger"
-	"github.com/sakshamkamra33/secure-auth/internal/middleware"
-	"github.com/sakshamkamra33/secure-auth/internal/session"
-	"github.com/sakshamkamra33/secure-auth/internal/storage"
+	"github.com/sakshamkamra33/go-auth-service/api"
+	"github.com/sakshamkamra33/go-auth-service/internal/auth"
+	"github.com/sakshamkamra33/go-auth-service/internal/config"
+	"github.com/sakshamkamra33/go-auth-service/internal/email"
+	"github.com/sakshamkamra33/go-auth-service/internal/logger"
+	"github.com/sakshamkamra33/go-auth-service/internal/middleware"
+	"github.com/sakshamkamra33/go-auth-service/internal/session"
+	"github.com/sakshamkamra33/go-auth-service/internal/storage"
 )
 
 func main() {

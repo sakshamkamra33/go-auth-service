@@ -16,12 +16,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sakshamkamra33/secure-auth/internal/config"
-	"github.com/sakshamkamra33/secure-auth/internal/crypto"
-	"github.com/sakshamkamra33/secure-auth/internal/email"
-	"github.com/sakshamkamra33/secure-auth/internal/logger"
-	"github.com/sakshamkamra33/secure-auth/internal/session"
-	"github.com/sakshamkamra33/secure-auth/internal/storage"
+	"github.com/sakshamkamra33/go-auth-service/internal/config"
+	"github.com/sakshamkamra33/go-auth-service/internal/crypto"
+	"github.com/sakshamkamra33/go-auth-service/internal/email"
+	"github.com/sakshamkamra33/go-auth-service/internal/logger"
+	"github.com/sakshamkamra33/go-auth-service/internal/session"
+	"github.com/sakshamkamra33/go-auth-service/internal/storage"
 )
 
 // Service errors.

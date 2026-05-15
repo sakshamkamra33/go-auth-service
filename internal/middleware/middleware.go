@@ -19,8 +19,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sakshamkamra33/secure-auth/internal/logger"
-	"github.com/sakshamkamra33/secure-auth/internal/session"
+	"github.com/sakshamkamra33/go-auth-service/internal/logger"
+	"github.com/sakshamkamra33/go-auth-service/internal/session"
 )
 
 type contextKey string

@@ -11,11 +11,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 
-	"github.com/sakshamkamra33/secure-auth/internal/auth"
-	"github.com/sakshamkamra33/secure-auth/internal/config"
-	"github.com/sakshamkamra33/secure-auth/internal/middleware"
-	"github.com/sakshamkamra33/secure-auth/internal/session"
-	"github.com/sakshamkamra33/secure-auth/internal/storage"
+	"github.com/sakshamkamra33/go-auth-service/internal/auth"
+	"github.com/sakshamkamra33/go-auth-service/internal/config"
+	"github.com/sakshamkamra33/go-auth-service/internal/middleware"
+	"github.com/sakshamkamra33/go-auth-service/internal/session"
+	"github.com/sakshamkamra33/go-auth-service/internal/storage"
 )
 
 // Handler holds all HTTP handler dependencies.

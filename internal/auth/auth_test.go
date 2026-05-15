@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sakshamkamra33/secure-auth/internal/auth"
-	"github.com/sakshamkamra33/secure-auth/internal/config"
-	"github.com/sakshamkamra33/secure-auth/internal/session"
-	"github.com/sakshamkamra33/secure-auth/internal/storage"
+	"github.com/sakshamkamra33/go-auth-service/internal/auth"
+	"github.com/sakshamkamra33/go-auth-service/internal/config"
+	"github.com/sakshamkamra33/go-auth-service/internal/session"
+	"github.com/sakshamkamra33/go-auth-service/internal/storage"
 )
 
 // --- In-memory fake store for tests (no file I/O) ---

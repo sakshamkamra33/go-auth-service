@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sakshamkamra33/secure-auth/internal/crypto"
+	"github.com/sakshamkamra33/go-auth-service/internal/crypto"
 )
 
 // TestHashAndVerify — round-trip correctness.
