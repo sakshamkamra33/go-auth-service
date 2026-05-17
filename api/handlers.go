@@ -42,7 +42,14 @@ func NewRouter(h *Handler, rl *middleware.RateLimiter) http.Handler {
 	r.Use(chimiddleware.Recoverer)
 	r.Use(rl.Handler)
 
+	// Health check endpoint
 	r.Get("/health", h.Health)
+
+	// Root path welcome message (fixes the 404 issue)
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"message": "Welcome to the Go Auth Service API! 🚀", "version": "1.0"}`))
+	})
 
 	r.Route("/api/v1/auth", func(r chi.Router) {
 		// Public
