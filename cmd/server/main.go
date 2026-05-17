@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -25,8 +26,9 @@ func main() {
 	logger.Init(os.Getenv("DEBUG") == "true")
 	slog.Info("starting secure-auth", "port", cfg.Port, "data_dir", cfg.DataDir)
 
-	// Storage.
-	store, err := storage.NewJSONStore(cfg.DataDir)
+		// Storage.
+	store, err := storage.NewSQLiteStore(filepath.Join(cfg.DataDir, "users.db"))
+
 	if err != nil {
 		slog.Error("storage init failed", "err", err)
 		os.Exit(1)
