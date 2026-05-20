@@ -22,15 +22,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-# Go binary output
-go-auth-service
-*.exe
-
-# Local data directory (SQLite DB + audit logs — never commit)
-data/
-
-# Environment variable files (contain secrets)
-.env
-.env.local
-.env.*.local

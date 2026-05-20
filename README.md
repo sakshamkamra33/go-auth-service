@@ -1,213 +1,161 @@
-# 🔐 Secure Auth — Production-Grade Authentication Microservice in Go
+# 🔐 Go Auth Service
 
-> **Evolved from:** A single-file C project using SHA-256 + `rand()` + flat text files.  
-> **Now:** A REST API microservice with Argon2id, JWT sessions, rate limiting, Docker, and CI/CD.
+A production-ready, full-stack authentication service built with **Go** (backend) and **React + TypeScript** (frontend). Designed to demonstrate enterprise-grade security patterns including Argon2id password hashing, JWT rotation, RBAC, brute-force protection, audit logging, and real email delivery via SMTP.
 
-[![CI](https://github.com/sakshamkamra/secure-auth/actions/workflows/ci.yml/badge.svg)](https://github.com/sakshamkamra/secure-auth/actions)
-[![Go Version](https://img.shields.io/badge/Go-1.22-blue)](https://go.dev)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-
----
-
-## 📐 Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        HTTP Client                              │
-└───────────────────────┬─────────────────────────────────────────┘
-                        │ REST JSON
-┌───────────────────────▼─────────────────────────────────────────┐
-│              Middleware Stack (chi router)                       │
-│  CORS → RequestID → Logging → RateLimit → Auth → RBAC          │
-└───────────────────────┬─────────────────────────────────────────┘
-                        │
-┌───────────────────────▼─────────────────────────────────────────┐
-│                    API Handlers                                  │
-│  /auth/register  /auth/login  /auth/logout  /auth/me  /refresh  │
-└───────────────────────┬─────────────────────────────────────────┘
-                        │
-┌───────────────────────▼─────────────────────────────────────────┐
-│                   Auth Service                                   │
-│  • Input validation      • Exponential backoff lockout          │
-│  • Argon2id hashing      • Audit logging (JSON/slog)            │
-└────────────┬──────────────────────────────┬────────────────────┘
-             │                              │
-┌────────────▼──────────┐     ┌────────────▼──────────────────────┐
-│    Session Manager    │     │         Storage Layer              │
-│  • JWT access tokens  │     │  interface UserStore { ... }      │
-│  • Refresh rotation   │     │  ↳ JSONStore (file, mutex, atomic)│
-│  • JTI blacklist      │     │  ↳ swap → SQLite / Postgres       │
-└───────────────────────┘     └───────────────────────────────────┘
-```
+[![Go Version](https://img.shields.io/badge/Go-1.23+-00ADD8?style=flat&logo=go)](https://go.dev)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat&logo=react)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat&logo=typescript)](https://www.typescriptlang.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## 🚀 Quick Start
+## ✨ Features
 
-### Run locally
+### 🔐 Security
+- **Argon2id password hashing** — industry-standard, memory-hard algorithm
+- **JWT access + refresh token rotation** — short-lived access tokens, long-lived refresh tokens with silent rotation
+- **Anti-brute-force protection** — exponential backoff lockout after configurable failed attempts
+- **API Rate Limiting** — per-IP request throttling to prevent DDoS/spam
+- **Single-use token invalidation** — email verification and password reset tokens are immediately deleted after use
+
+### 👥 User Management
+- **Role-Based Access Control (RBAC)** — `user` and `admin` roles enforced at the middleware level
+- **Email verification flow** — secure, single-use, 24-hour expiry tokens
+- **Password recovery flow** — time-expiring (15-min) reset tokens sent via email
+- **Audit logging** — every critical security event (login, logout, failures, resets) persisted to `data/audit.jsonl`
+
+### 💻 Full-Stack SPA
+- **Protected routing** — React Router guards redirect unauthenticated users
+- **Silent token refresh** — the API client automatically intercepts 401s and retries with a new access token
+- **Dashboard** — displays user profile, role, and email verification status
+- **Admin Panel** — lists all users, allows deletion of non-admin accounts
+- **Forgot/Reset Password** pages with clean, animated UI
+- **Email Verification** page (auto-verifies from URL query token)
+
+---
+
+## 🏗️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Backend Language | Go 1.23+ |
+| HTTP Router | `go-chi/chi` v5 |
+| Password Hashing | Argon2id (`golang.org/x/crypto`) |
+| Auth Tokens | JWT (`golang-jwt/jwt` v5) |
+| Database | SQLite (`modernc.org/sqlite`) |
+| Email | SMTP (built-in `net/smtp`, dev fallback to console) |
+| Frontend | React 19 + TypeScript + Vite |
+| Animations | Framer Motion |
+| Icons | Lucide React |
+| Routing | React Router DOM v7 |
+| Containerization | Docker (distroless image) |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Go 1.23+
+- Node.js 20+
+
+### 1. Clone the repo
 ```bash
-# Clone
-git clone https://github.com/sakshamkamra/secure-auth
-cd secure-auth
-
-# Run
-JWT_SECRET=my-32-byte-super-secret-key-here go run ./cmd/server
+git clone https://github.com/sakshamkamra33/go-auth-service.git
+cd go-auth-service
 ```
 
-### Run with Docker
+### 2. Start the Backend
+```powershell
+# Windows PowerShell
+$env:JWT_SECRET="your-secret-min-32-chars-here!!"; go run ./cmd/server
+```
 ```bash
-docker compose up --build
+# Linux / macOS
+JWT_SECRET="your-secret-min-32-chars-here!!" go run ./cmd/server
 ```
+The server starts on **http://localhost:8080**.
 
-Server starts on `http://localhost:8080`.
+### 3. Start the Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+The app opens on **http://localhost:5173**.
 
 ---
 
-## 📡 API Reference
+## 📧 Email Configuration
+
+By default, the server prints emails to the terminal (dev mode). To send real emails, set these environment variables when starting the backend:
+
+| Variable | Description | Example |
+|---|---|---|
+| `SMTP_HOST` | SMTP server hostname | `smtp.gmail.com` |
+| `SMTP_PORT` | SMTP port (default: 587) | `587` |
+| `SMTP_FROM` | Sender email address | `noreply@yourapp.com` |
+| `SMTP_PASS` | SMTP password / app password | `your-app-password` |
+
+> **Tip for testing:** Use [Ethereal Email](https://ethereal.email) for a free, zero-setup fake SMTP inbox.
+
+---
+
+## 🐳 Docker
+
+```bash
+# Build and run with Docker Compose
+make docker-up
+
+# Stop
+make docker-down
+```
+
+---
+
+## 📁 Project Structure
+
+```
+go-auth-service/
+├── cmd/server/         # Application entrypoint (main.go)
+├── api/                # HTTP handlers
+├── internal/
+│   ├── auth/           # Business logic (register, login, tokens)
+│   ├── config/         # Environment variable configuration
+│   ├── crypto/         # Argon2id hashing, token generation
+│   ├── email/          # SMTP mailer with dev fallback
+│   ├── logger/         # Structured logging (slog)
+│   ├── session/        # JWT issuing, validation, revocation
+│   └── storage/        # SQLite user store + audit log
+├── frontend/           # React + TypeScript SPA
+│   └── src/
+│       ├── api/        # Centralized API client with auto token refresh
+│       ├── context/    # AuthContext (global auth state)
+│       ├── components/ # ProtectedRoute
+│       └── pages/      # AuthPage, Dashboard, AdminPanel, etc.
+└── data/               # Runtime data (SQLite DB + audit log) — gitignored
+```
+
+---
+
+## 🔑 API Endpoints
 
 | Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| `POST` | `/api/v1/auth/register` | None | Register new user |
-| `POST` | `/api/v1/auth/login` | None | Login → JWT pair |
+|---|---|---|---|
+| `POST` | `/api/v1/auth/register` | Public | Create a new account |
+| `POST` | `/api/v1/auth/login` | Public | Authenticate and get tokens |
+| `POST` | `/api/v1/auth/refresh` | Public | Exchange refresh token for new pair |
 | `POST` | `/api/v1/auth/logout` | Bearer | Revoke tokens |
-| `POST` | `/api/v1/auth/refresh` | None | Refresh access token |
-| `GET`  | `/api/v1/auth/me` | Bearer | Get own profile |
-| `GET`  | `/api/v1/admin/users` | Bearer + Admin | List all users |
-| `GET`  | `/health` | None | Health check |
-
-### Register
-```bash
-curl -X POST http://localhost:8080/api/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"alice","email":"alice@example.com","password":"StrongPass@123!"}'
-```
-
-### Login
-```bash
-curl -X POST http://localhost:8080/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"alice","password":"StrongPass@123!"}'
-
-# Response:
-# {
-#   "access_token": "eyJ...",
-#   "refresh_token": "abc123...",
-#   "expires_at": "2024-01-01T00:15:00Z"
-# }
-```
-
-### Protected route
-```bash
-curl http://localhost:8080/api/v1/auth/me \
-  -H "Authorization: Bearer eyJ..."
-```
+| `GET` | `/api/v1/auth/me` | Bearer | Get current user profile |
+| `POST` | `/api/v1/auth/verify-email` | Public | Verify email with token |
+| `POST` | `/api/v1/auth/forgot-password` | Public | Request password reset email |
+| `POST` | `/api/v1/auth/reset-password` | Public | Set new password with token |
+| `GET` | `/api/v1/admin/users` | Admin | List all users |
+| `DELETE` | `/api/v1/admin/users/:id` | Admin | Delete a user |
+| `GET` | `/api/v1/admin/audit-logs` | Admin | View audit log |
+| `GET` | `/health` | Public | Health check |
 
 ---
 
-## 🔒 Security Design
+## 📜 License
 
-| Feature | Implementation | Why |
-|---------|---------------|-----|
-| **Password hashing** | Argon2id (64MiB, 3 iter, p=4) | Memory-hard; GPU/ASIC resistant |
-| **Salt generation** | `crypto/rand` (CSPRNG) | Unpredictable; defeats rainbow tables |
-| **Timing safety** | `crypto/subtle.ConstantTimeCompare` | Prevents timing side-channel |
-| **Session tokens** | HS256 JWT + opaque refresh token | Stateless access, revocable refresh |
-| **Token revocation** | JTI blacklist + refresh map | Logout works immediately |
-| **Brute force** | Exponential backoff (30s→60s→120s…) | Effective against automated attacks |
-| **Rate limiting** | Token bucket per IP | API-level DDoS mitigation |
-| **Input validation** | Username charset + NIST password policy | Prevents injection, weak passwords |
-| **Storage** | RWMutex + atomic write (temp+rename) | Thread-safe, crash-safe |
-| **Error messages** | Generic ("invalid credentials") | Prevents username enumeration |
-| **Container** | Distroless base image | No shell → minimal attack surface |
-
----
-
-## 🗂️ Project Structure
-
-```
-secure-auth/
-├── cmd/server/main.go          # Entry point, graceful shutdown
-├── api/handlers.go             # HTTP handlers (REST)
-├── internal/
-│   ├── auth/
-│   │   ├── service.go          # Business logic
-│   │   └── auth_test.go        # Unit tests (fake store)
-│   ├── crypto/
-│   │   ├── crypto.go           # Argon2id, CSPRNG, password policy
-│   │   └── crypto_test.go      # Table-driven tests
-│   ├── session/
-│   │   ├── session.go          # JWT + refresh token manager
-│   │   └── session_test.go     # Token lifecycle tests
-│   ├── storage/
-│   │   ├── storage.go          # UserStore interface + models
-│   │   └── json_store.go       # File-backed implementation
-│   ├── middleware/middleware.go # RequestID, logging, rate limit, auth, RBAC
-│   ├── logger/logger.go        # Structured JSON logger (slog)
-│   └── config/config.go        # Env-based configuration
-├── Dockerfile                  # 2-stage: builder → distroless
-├── docker-compose.yml
-├── .github/workflows/ci.yml    # Build, test, lint, vuln scan, Docker
-└── go.mod
-```
-
----
-
-## ⚙️ Configuration
-
-All config via environment variables:
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `8080` | HTTP listen port |
-| `JWT_SECRET` | *(change me)* | HMAC signing key — **must be set in production** |
-| `ACCESS_TOKEN_EXPIRY` | `15m` | Access token lifetime |
-| `REFRESH_TOKEN_EXPIRY` | `168h` | Refresh token lifetime (7 days) |
-| `DATA_DIR` | `./data` | Directory for persistent storage |
-| `MAX_LOGIN_ATTEMPTS` | `5` | Failures before lockout |
-| `LOCKOUT_BASE_DURATION` | `30s` | Base lockout duration (doubles each failure) |
-| `RATE_LIMIT_REQUESTS` | `20` | Max requests per window per IP |
-| `RATE_LIMIT_WINDOW` | `1m` | Rate limit window |
-
----
-
-## 🧪 Testing
-
-```bash
-# Run all tests
-go test ./...
-
-# With race detector (detects concurrency bugs)
-go test -race ./...
-
-# With coverage report
-go test -coverprofile=coverage.out ./...
-go tool cover -html=coverage.out
-```
-
----
-
-## 🔄 Evolution: C → Go
-
-| Concern | Original C | This Go Version |
-|---------|-----------|-----------------|
-| Language | C (single file) | Go (modular packages) |
-| Hashing | SHA-256 (speed hash) | Argon2id (memory-hard) |
-| Randomness | `rand()` (predictable) | `crypto/rand` (CSPRNG) |
-| Concurrency | `fork()` demo | Goroutines + `sync.RWMutex` |
-| Storage | Plain `.txt` | Atomic JSON + mutex locking |
-| Sessions | None | JWT access + refresh tokens |
-| Brute force | Max 3 attempts | Exponential backoff lockout |
-| Rate limiting | None | Per-IP token bucket |
-| Logging | Plain text | Structured JSON (SIEM-ready) |
-| Transport | CLI | REST HTTP API |
-| Build | `gcc main.c` | CMake-equivalent: `go build` |
-| Tests | None | Unit tests with fake stores |
-| CI/CD | None | GitHub Actions (build+lint+scan+docker) |
-| Deployment | Binary | Docker (distroless image) |
-
----
-
-## 👨‍💻 Author
-
-**Saksham Kamra** — Systems & Backend Engineer  
-[GitHub](https://github.com/sakshamkamra33) · [LinkedIn](https://linkedin.com/in/sakshamkamra)
+MIT © [Saksham Kamra](https://github.com/sakshamkamra33)
